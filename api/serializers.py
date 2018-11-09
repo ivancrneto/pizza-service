@@ -6,7 +6,8 @@ from .models import Order, Pizza
 class OrderSerializer(serializers.ModelSerializer):
 
     pizza_id = serializers.IntegerField()
-    pizza_size = serializers.ChoiceField(choices=Pizza.SIZES)
+    pizza_size = serializers.ChoiceField(
+        source='pizza.size', choices=Pizza.SIZES)
     customer_name = serializers.CharField(source='customer.name')
     customer_address = serializers.CharField(source='customer.address')
 
