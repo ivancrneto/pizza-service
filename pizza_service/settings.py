@@ -143,7 +143,8 @@ STATICFILES_DIRS = (
     BASE_DIR.parent.child('static'),
 )
 
-STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
 
 MEDIA_ROOT = BASE_DIR.parent.child('uploads')
 
