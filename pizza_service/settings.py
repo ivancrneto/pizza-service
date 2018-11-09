@@ -11,21 +11,25 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
+import dj_database_url
+from contextlib import suppress
+from unipath import Path
+
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = Path(__file__).parent
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '62&9@&z67#td2u5oq*wfzt28f!$fo(ly*mxq=i_s50sd(r7(ca'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'a')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -68,6 +72,7 @@ TEMPLATES = [
     },
 ]
 
+
 WSGI_APPLICATION = 'pizza_service.wsgi.application'
 
 
@@ -80,6 +85,11 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+db_from_env = dj_database_url.config(
+    engine='django_postgrespool', conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+DATABASES['default']['CONN_MAX_AGE'] = 500
 
 
 # Password validation
@@ -108,19 +118,36 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+SITE_ID = 1
+
 USE_I18N = True
 
 USE_L10N = True
 
 USE_TZ = True
 
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, 'locale'),
+)
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
+STATIC_ROOT = BASE_DIR.parent.child('staticfiles')
 
 STATIC_URL = '/static/'
 
-try:
-    from local_settings import *
-except Exception:
-    pass
+# Extra places for collectstatic to find static files.
+STATICFILES_DIRS = (
+    BASE_DIR.parent.child('static'),
+)
+
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
+
+MEDIA_ROOT = BASE_DIR.parent.child('uploads')
+
+MEDIA_URL = '/media/'
+
+
+with suppress(ImportError):
+    from local_settings import *  # noqa
