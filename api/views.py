@@ -5,14 +5,18 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.views import APIView
 
 from .models import Customer, Order, Pizza
-from .serializers import OrderSerializer
+from .serializers import OrderGetSerializer, OrderSerializer
 
 
 class OrderViewSet(ModelViewSet):
 
     queryset = Order.objects.all()
     renderer_classes = [JSONRenderer,]
-    serializer_class = OrderSerializer
+
+    def get_serializer(self, *args, **kwargs):
+        if self.request.method == 'GET':
+            return OrderGetSerializer(*args, **kwargs)
+        return OrderSerializer(*args, **kwargs)
 
     def perform_create(self, serializer):
         data = serializer.data
