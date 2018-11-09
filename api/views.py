@@ -33,3 +33,19 @@ class OrderViewSet(ModelViewSet):
         Order.objects.create(
             pizza=pizza, customer=customer
         )
+
+    def perform_update(self, serializer):
+        data = self.request.data.copy()
+
+        customer_name, customer_address = (
+            data.pop('customer_name'), data.pop('customer_address'))
+        customer, _ = Customer.objects.get_or_create(
+            name=customer_name, defaults={'address': customer_address})
+
+        pizza_id, pizza_size = (
+            data.pop('pizza_id'), data.pop('pizza_size'))
+        pizza = Pizza.objects.get(id=pizza_id)
+
+        serializer.instance.pizza = pizza
+        serializer.instance.customer = customer
+        serializer.instance.save()
